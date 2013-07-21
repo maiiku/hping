@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h2>Upload urls from file</h2>
+    <h4>File syntax notes:</h4>
+    <h6>each line in uploaded text file should feature following syntax: <br />
+        <pre>http://examplesite.com|string to search for|name for this entry</pre>
+        <span class="muted">the third 'name' parameter is optional</span>
+    </h6>
+    <form action="" method="post" enctype="multipart/form-data">{% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" class="btn" value="Submit" />
+    </form>
+{% endblock %}
