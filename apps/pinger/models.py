@@ -54,7 +54,7 @@ class PingHistory(BaseModel):
         '''
         Everything else then 200 OK is not ok
         '''
-        return True if self.http_code != 200 and self.phrase_found else False
+        return True if (self.http_code != 200) or not self.phrase_found else False
 
     def save(self, *args, **kwargs):
         super(PingHistory, self).save(*args, **kwargs)

@@ -28,7 +28,7 @@
         </thead>
         <tbody>
         {% for straw in object_list %}
-            <tr>
+            <tr {% if straw.last_error > straw.last_ok %}class="error" {% endif %}>
                 <td>{{ straw.pk }}</td>
                 <td><strong>{{ straw.name }}</strong></td>
                 <td><strong>{{ straw.url }}</strong></td>
