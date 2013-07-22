@@ -2,6 +2,9 @@
 from django.core.urlresolvers import reverse
 from django.db import models
 from datetime import datetime as dt
+from django.utils.timezone import utc
+from settings.common import LOGFILE
+
 
 class BaseModel(models.Model):
     '''
@@ -47,7 +50,7 @@ class PingHistory(BaseModel):
     haystack = models.ForeignKey('Haystack')
     http_code=models.IntegerField(default=0)
     time_ms = models.IntegerField(default=0)
-    phrase_found = models.BooleanField(default=False)
+    phrase_found = models.BooleanField(default=True)
 
     @property
     def is_error(self):
@@ -61,7 +64,18 @@ class PingHistory(BaseModel):
         self.haystack.last_time_ms = self.time_ms
         self.haystack.last_checked = self.created
         if not self.is_error:
-            self.haystack.last_ok = dt.utcnow()
+            self.haystack.last_ok = dt.utcnow().replace(tzinfo=utc)
         else:
-            self.haystack.last_error = dt.utcnow()
+            self.haystack.last_error = dt.utcnow().replace(tzinfo=utc)
         self.haystack.save()
+
+        #append to log file
+        line =  '[{status}] {url} @ {check_time}: got {code} response in {ms}ms and requirement {phrase_found}\n'.format(
+            status='FAILED' if self.is_error else 'SUCCESS',
+            url=self.haystack.url,
+            check_time=self.created,
+            code=self.http_code,
+            ms=self.time_ms,
+            phrase_found='FAILED' if not self.phrase_found else 'SUCCESS' )
+        with open(LOGFILE, 'a+') as f:
+            f.write(line)

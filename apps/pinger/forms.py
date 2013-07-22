@@ -29,6 +29,6 @@ class UploadFileForm(forms.Form):
         '''
         _file = self.cleaned_data["file"]
         for (num, line) in enumerate(_file):
-            if len(line.split('|')) < 2:
+            if len(line.split('|')) < 2 or len(line.split('|')) > 3:
                 raise forms.ValidationError("Invalid file format in line %d: %s" % (num+1, line))
         return _file

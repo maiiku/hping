@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.views.generic import CreateView, ListView, UpdateView, DeleteView
 from django.views.generic.base import TemplateResponseMixin, ContextMixin, View
 from apps.pinger.forms import UploadFileForm, HaystackCreateModelForm
 from apps.pinger.models import Haystack
 from django.core.urlresolvers import reverse_lazy
 from apps.util.mixins import MessageMixin
+from settings.common import LOGFILE
+
 
 class HaystackUploadView(TemplateResponseMixin, ContextMixin, View):
     form_class = UploadFileForm
@@ -40,8 +42,10 @@ class HaystackUploadView(TemplateResponseMixin, ContextMixin, View):
         )
         straw.save()
 
+
 class HaystackListView(ListView):
     model = Haystack
+
 
 class HaystackCreateView(MessageMixin, CreateView):
     model = Haystack
@@ -49,16 +53,19 @@ class HaystackCreateView(MessageMixin, CreateView):
     success_message='Added new item!'
     success_url = reverse_lazy('hay_list')
 
+
 class HaystackUpdateView(MessageMixin, UpdateView):
     model = Haystack
     form_class = HaystackCreateModelForm
     success_message='Data was successfully edited'
     success_url = reverse_lazy('hay_list')
 
+
 class HaystackDeleteView(MessageMixin, DeleteView):
     model = Haystack
     success_message='Link was removed from monitoring system.'
     success_url = reverse_lazy('hay_list')
+
 
 class HaystackRunView(View):
     success_url = reverse_lazy('hay_list')
@@ -69,3 +76,18 @@ class HaystackRunView(View):
         pinger.run()
         return HttpResponseRedirect(self.success_url)
 
+
+class HaystackLogView(View):
+
+    def get(self, request, *args, **kwargs):
+        num = int(kwargs.pop('num') or 5)
+
+        from apps.util.util import tail
+
+        with open(LOGFILE, 'r') as f:
+            data, more = tail(f, num)
+            if more:
+                data = 'Showing last %d lines. Full og file avialbale at: %s\n\n%s' % (num, LOGFILE, data)
+        response = HttpResponse(data, content_type='text/plain')
+
+        return response

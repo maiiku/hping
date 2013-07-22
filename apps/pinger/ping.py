@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
+import logging
 import urllib2
 from apps.pinger.models import Haystack, PingHistory
+
+logger = logging.getLogger('pinger')
 
 
 class SendPing(object):
@@ -33,13 +36,15 @@ class SendPing(object):
 
     def ping_straw(self, straw):
         import time
-        error = False
+        error = True
         code = 0
 
         tstart = time.time()
 
         try:
             url_data, code = self.stream_data_from_url(straw.url)
+            logger.debug('url data: %s' % url_data)
+            error=False
         except:
             error = True
 
@@ -47,12 +52,14 @@ class SendPing(object):
         ms = tend-tstart
 
         if not error:
-            error = self.check_phrase(straw.search_phrase, url_data)
+            check_result = self.check_phrase(straw.search_phrase, url_data)
+        else:
+            check_result=False
 
         ping = PingHistory(
             haystack=straw,
             time_ms=ms,
-            phrase_found=error,
+            phrase_found=check_result,
             http_code=code,
         )
         ping.save()
