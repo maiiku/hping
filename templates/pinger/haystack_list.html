@@ -9,7 +9,7 @@
             <dd> Add new services to be monitored from file </dd>
             <dt><a href="{% url "hay_run" %}"> <i class="icon-play"></i> Run manually now</a> </dt>
             <dd> Refresh monitored url status now </dd>
-            <dt><a href="{% url "hay_upload" %}"> <i class="icon-list"></i> View logs</a> </dt>
+            <dt><a href="{% url "hay_log" num=50 %}"> <i class="icon-list"></i> View logs</a> </dt>
             <dd> View logfile from monitoring events </dd>
     </dl>
     <h2>List of monitored urls</h2>
@@ -28,7 +28,7 @@
         </thead>
         <tbody>
         {% for straw in object_list %}
-            <tr {% if straw.last_error > straw.last_ok %}class="error" {% endif %}>
+            <tr {% if straw.last_error > straw.last_ok or straw.last_error != None and straw.last_ok == Null %}class="error" {% endif %}>
                 <td>{{ straw.pk }}</td>
                 <td><strong>{{ straw.name }}</strong></td>
                 <td><strong>{{ straw.url }}</strong></td>

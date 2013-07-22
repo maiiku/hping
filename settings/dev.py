@@ -6,3 +6,11 @@ from settings.common import *
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 ########## END DEBUG CONFIGURATION
+
+LOGGING['loggers'].update({
+        'pinger': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+})
