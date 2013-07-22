@@ -45,7 +45,6 @@ class PingHistory(BaseModel):
     Model holding health check history
     '''
     haystack = models.ForeignKey('Haystack')
-    last_time_ms = models.IntegerField(default=0)
     http_code=models.IntegerField(default=0)
     time_ms = models.IntegerField(default=0)
     phrase_found = models.BooleanField(default=False)
@@ -58,11 +57,11 @@ class PingHistory(BaseModel):
         return True if self.http_code != 200 and self.phrase_found else False
 
     def save(self, *args, **kwargs):
+        super(PingHistory, self).save(*args, **kwargs)
         self.haystack.last_time_ms = self.time_ms
         self.haystack.last_checked = self.created
         if not self.is_error:
             self.haystack.last_ok = dt.utcnow()
         else:
             self.haystack.last_error = dt.utcnow()
-        super(self, PingHistory).save(*args, **kwargs)
-
+        self.haystack.save()

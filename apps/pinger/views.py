@@ -59,3 +59,13 @@ class HaystackDeleteView(MessageMixin, DeleteView):
     model = Haystack
     success_message='Link was removed from monitoring system.'
     success_url = reverse_lazy('hay_list')
+
+class HaystackRunView(View):
+    success_url = reverse_lazy('hay_list')
+
+    def get(self, request, *args, **kwargs):
+        from ping import SendPing
+        pinger = SendPing()
+        pinger.run()
+        return HttpResponseRedirect(self.success_url)
+
